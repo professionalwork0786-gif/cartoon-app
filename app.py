@@ -22,14 +22,16 @@ if uploaded_file is not None:
         with st.spinner("Video process ho rahi hai, kripya intezar karein..."):
             cap = cv2.VideoCapture(video_path)
             fps = cap.get(cv2.CAP_PROP_FPS)
+            if fps == 0 or fps != fps:
+                fps = 25.0
             width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
             height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-            output_temp = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+            output_temp = tempfile.NamedTemporaryFile(delete=False, suffix='.avi')
             output_path = output_temp.name
             output_temp.close()
 
-            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            fourcc = cv2.VideoWriter_fourcc(*'XVID')
             out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
             while cap.isOpened():
@@ -37,7 +39,6 @@ if uploaded_file is not None:
                 if not ret:
                     break
 
-                # Fast and clean cartoon filter
                 small = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
                 color = cv2.bilateralFilter(small, d=9, sigmaColor=75, sigmaSpace=75)
                 color = cv2.resize(color, (width, height))
@@ -57,4 +58,5 @@ if uploaded_file is not None:
             st.video(output_path)
 
             with open(output_path, "rb") as file:
-                st.download_button("📥 Download Cartoon Video", file, file_name="cartoon_video.mp4", mime="video/mp4")
+                st.download_button("📥 Download Cartoon Video", file, file_name="cartoon_video.avi", mime="video/avi")
+                
